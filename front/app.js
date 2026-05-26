@@ -40,6 +40,26 @@ function showNotif(message, type = "info") {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+function parseError(err) {
+  const reason = err?.reason || err?.data?.message || "";
+  const msg    = err?.message || "";
+
+  if (reason.includes("Goal not reached"))       return "L'objectif n'est pas encore atteint.";
+  if (reason.includes("Goal already reached"))   return "L'objectif est déjà atteint, le remboursement n'est pas possible.";
+  if (reason.includes("Already withdrawn"))      return "Les fonds ont déjà été retirés.";
+  if (reason.includes("No contribution"))        return "Tu n'as pas contribué à cette campagne.";
+  if (reason.includes("Already refunded"))       return "Tu as déjà été remboursé.";
+  if (reason.includes("Deadline not passed"))    return "La campagne est encore en cours.";
+  if (reason.includes("Deadline passed"))        return "La campagne est terminée, les contributions sont closes.";
+  if (reason.includes("Amount must be > 0"))     return "Le montant doit être supérieur à 0 ETH.";
+  if (reason.includes("Not owner"))              return "Seul le propriétaire peut effectuer cette action.";
+  if (msg.includes("user rejected"))             return "Transaction annulée par l'utilisateur.";
+  if (msg.includes("insufficient funds"))        return "Fonds insuffisants dans ton wallet.";
+  if (msg.includes("network"))                   return "Erreur réseau — vérifie ta connexion.";
+  if (reason) return reason;
+  return "Une erreur est survenue. Réessaie.";
+}
+
 function formatETH(wei) {
   return parseFloat(ethers.formatEther(wei)).toFixed(4) + " ETH";
 }
@@ -187,7 +207,7 @@ async function contribute() {
     await loadContractData();
     showNotif("Contribution confirmée !", "success");
   } catch (err) {
-    const msg = err?.reason || err?.message || "Transaction rejetée.";
+    const msg = parseError(err);
     showNotif(msg, "error");
   } finally {
     setLoading(btnContribute, false);
@@ -204,7 +224,7 @@ async function withdraw() {
     await loadContractData();
     showNotif("Fonds retirés avec succès.", "success");
   } catch (err) {
-    const msg = err?.reason || err?.message || "Transaction rejetée.";
+    const msg = parseError(err);
     showNotif(msg, "error");
   } finally {
     setLoading(btnWithdraw, false);
@@ -221,7 +241,7 @@ async function refund() {
     await loadContractData();
     showNotif("Remboursement reçu.", "success");
   } catch (err) {
-    const msg = err?.reason || err?.message || "Transaction rejetée.";
+    const msg = parseError(err);
     showNotif(msg, "error");
   } finally {
     setLoading(btnRefund, false);
