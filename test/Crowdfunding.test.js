@@ -141,12 +141,50 @@ describe("Crowdfunding", function () {
   });
 
   describe("refund()", function () {
-    it("Should refund contributor if goal not reached after deadline");
-    it("Should set contributions[address] = 0 after refund");
-    it("Should revert on double refund");
-    it("Should revert if goal reached");
-    it("Should revert if no contribution");
-    it("Should revert before deadline");
+    it("Should refund contributor if goal not reached after deadline", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      const amount = ethers.parseEther("0.001");
+      await crowdfunding.connect(contributor1).contribute({ value: amount });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await expect(crowdfunding.connect(contributor1).refund())
+        .to.emit(crowdfunding, "Refunded")
+        .withArgs(contributor1.address, amount);
+    });
+
+    it("Should set contributions[address] = 0 after refund", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: ethers.parseEther("0.001") });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await crowdfunding.connect(contributor1).refund();
+      expect(await crowdfunding.contributions(contributor1.address)).to.equal(0);
+    });
+
+    it("Should revert on double refund", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: ethers.parseEther("0.001") });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await crowdfunding.connect(contributor1).refund();
+      await expect(crowdfunding.connect(contributor1).refund()).to.be.revertedWith("Nothing to refund");
+    });
+
+    it("Should revert if goal reached", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: GOAL });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await expect(crowdfunding.connect(contributor1).refund()).to.be.revertedWith("Goal reached");
+    });
+
+    it("Should revert if no contribution", async function () {
+      const { crowdfunding, contributor2 } = await deployCrowdfundingFixture();
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await expect(crowdfunding.connect(contributor2).refund()).to.be.revertedWith("Nothing to refund");
+    });
+
+    it("Should revert before deadline", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: ethers.parseEther("0.001") });
+      await expect(crowdfunding.connect(contributor1).refund()).to.be.revertedWith("Campaign active");
+    });
   });
 
   describe("View functions", function () {
