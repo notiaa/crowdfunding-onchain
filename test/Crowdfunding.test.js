@@ -47,12 +47,50 @@ describe("Crowdfunding", function () {
   });
 
   describe("contribute()", function () {
-    it("Should accept valid contribution and emit Contributed");
-    it("Should update totalRaised");
-    it("Should update contributions[address]");
-    it("Should accumulate multiple contributions from the same address");
-    it("Should revert if amount = 0");
-    it("Should revert after deadline");
+    it("Should accept valid contribution and emit Contributed", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      const amount = ethers.parseEther("0.01");
+      await expect(crowdfunding.connect(contributor1).contribute({ value: amount }))
+        .to.emit(crowdfunding, "Contributed")
+        .withArgs(contributor1.address, amount);
+    });
+
+    it("Should update totalRaised", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      const amount = ethers.parseEther("0.01");
+      await crowdfunding.connect(contributor1).contribute({ value: amount });
+      expect(await crowdfunding.totalRaised()).to.equal(amount);
+    });
+
+    it("Should update contributions[address]", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      const amount = ethers.parseEther("0.01");
+      await crowdfunding.connect(contributor1).contribute({ value: amount });
+      expect(await crowdfunding.contributions(contributor1.address)).to.equal(amount);
+    });
+
+    it("Should accumulate multiple contributions from the same address", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      const amount = ethers.parseEther("0.01");
+      await crowdfunding.connect(contributor1).contribute({ value: amount });
+      await crowdfunding.connect(contributor1).contribute({ value: amount });
+      expect(await crowdfunding.contributions(contributor1.address)).to.equal(amount * 2n);
+    });
+
+    it("Should revert if amount = 0", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await expect(
+        crowdfunding.connect(contributor1).contribute({ value: 0 })
+      ).to.be.revertedWith("Zero contribution");
+    });
+
+    it("Should revert after deadline", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await expect(
+        crowdfunding.connect(contributor1).contribute({ value: ethers.parseEther("0.01") })
+      ).to.be.revertedWith("Campaign ended");
+    });
   });
 
   describe("withdraw()", function () {
