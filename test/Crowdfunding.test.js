@@ -14,12 +14,36 @@ describe("Crowdfunding", function () {
   }
 
   describe("Deployment", function () {
-    it("Should set the correct owner");
-    it("Should set the correct goal");
-    it("Should set deadline in the future");
-    it("Should start with totalRaised = 0");
-    it("Should revert if goal = 0");
-    it("Should revert if duration = 0");
+    it("Should set the correct owner", async function () {
+      const { crowdfunding, owner } = await deployCrowdfundingFixture();
+      expect(await crowdfunding.owner()).to.equal(owner.address);
+    });
+
+    it("Should set the correct goal", async function () {
+      const { crowdfunding } = await deployCrowdfundingFixture();
+      expect(await crowdfunding.goal()).to.equal(GOAL);
+    });
+
+    it("Should set deadline in the future", async function () {
+      const { crowdfunding } = await deployCrowdfundingFixture();
+      const latest = await time.latest();
+      expect(await crowdfunding.deadline()).to.be.gt(latest);
+    });
+
+    it("Should start with totalRaised = 0", async function () {
+      const { crowdfunding } = await deployCrowdfundingFixture();
+      expect(await crowdfunding.totalRaised()).to.equal(0);
+    });
+
+    it("Should revert if goal = 0", async function () {
+      const Crowdfunding = await ethers.getContractFactory("Crowdfunding");
+      await expect(Crowdfunding.deploy(0, DURATION_DAYS)).to.be.revertedWith("Goal must be > 0");
+    });
+
+    it("Should revert if duration = 0", async function () {
+      const Crowdfunding = await ethers.getContractFactory("Crowdfunding");
+      await expect(Crowdfunding.deploy(GOAL, 0)).to.be.revertedWith("Duration must be > 0");
+    });
   });
 
   describe("contribute()", function () {
