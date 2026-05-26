@@ -188,9 +188,26 @@ describe("Crowdfunding", function () {
   });
 
   describe("View functions", function () {
-    it("getRemainingTime() should be > 0 before deadline");
-    it("getRemainingTime() should be 0 after deadline");
-    it("isGoalReached() should be false initially");
-    it("isGoalReached() should be true when goal reached");
+    it("getRemainingTime() should be > 0 before deadline", async function () {
+      const { crowdfunding } = await deployCrowdfundingFixture();
+      expect(await crowdfunding.getRemainingTime()).to.be.gt(0);
+    });
+
+    it("getRemainingTime() should be 0 after deadline", async function () {
+      const { crowdfunding } = await deployCrowdfundingFixture();
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      expect(await crowdfunding.getRemainingTime()).to.equal(0);
+    });
+
+    it("isGoalReached() should be false initially", async function () {
+      const { crowdfunding } = await deployCrowdfundingFixture();
+      expect(await crowdfunding.isGoalReached()).to.equal(false);
+    });
+
+    it("isGoalReached() should be true when goal reached", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: GOAL });
+      expect(await crowdfunding.isGoalReached()).to.equal(true);
+    });
   });
 });
