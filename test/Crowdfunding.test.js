@@ -94,12 +94,50 @@ describe("Crowdfunding", function () {
   });
 
   describe("withdraw()", function () {
-    it("Should allow owner to withdraw if goal reached after deadline");
-    it("Should set withdrawn = true after withdrawal");
-    it("Should revert on double withdrawal");
-    it("Should revert before deadline");
-    it("Should revert if non-owner calls");
-    it("Should revert if goal not reached");
+    it("Should allow owner to withdraw if goal reached after deadline", async function () {
+      const { crowdfunding, owner, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: GOAL });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await expect(crowdfunding.connect(owner).withdraw())
+        .to.emit(crowdfunding, "Withdrawn")
+        .withArgs(owner.address, GOAL);
+    });
+
+    it("Should set withdrawn = true after withdrawal", async function () {
+      const { crowdfunding, owner, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: GOAL });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await crowdfunding.connect(owner).withdraw();
+      expect(await crowdfunding.withdrawn()).to.equal(true);
+    });
+
+    it("Should revert on double withdrawal", async function () {
+      const { crowdfunding, owner, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: GOAL });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await crowdfunding.connect(owner).withdraw();
+      await expect(crowdfunding.connect(owner).withdraw()).to.be.revertedWith("Already withdrawn");
+    });
+
+    it("Should revert before deadline", async function () {
+      const { crowdfunding, owner, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: GOAL });
+      await expect(crowdfunding.connect(owner).withdraw()).to.be.revertedWith("Campaign active");
+    });
+
+    it("Should revert if non-owner calls", async function () {
+      const { crowdfunding, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: GOAL });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await expect(crowdfunding.connect(contributor1).withdraw()).to.be.revertedWith("Only owner");
+    });
+
+    it("Should revert if goal not reached", async function () {
+      const { crowdfunding, owner, contributor1 } = await deployCrowdfundingFixture();
+      await crowdfunding.connect(contributor1).contribute({ value: ethers.parseEther("0.001") });
+      await time.increase(DURATION_DAYS * 24 * 60 * 60 + 1);
+      await expect(crowdfunding.connect(owner).withdraw()).to.be.revertedWith("Goal not reached");
+    });
   });
 
   describe("refund()", function () {
