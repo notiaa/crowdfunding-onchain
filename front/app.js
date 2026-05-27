@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = "TODO";
+const CONTRACT_ADDRESS = "0xb1958D0133f813b0Fc898f9E9A29D328E621B47a";
 const ABI = [
   // Constructor
   "constructor(uint256 _goal, uint256 _durationDays)",
