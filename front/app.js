@@ -1,6 +1,28 @@
 const CONTRACT_ADDRESS = "TODO";
 const ABI = [
-  // À compléter après npx hardhat compile (copier depuis artifacts/contracts/Crowdfunding.sol/Crowdfunding.json)
+  // Constructor
+  "constructor(uint256 _goal, uint256 _durationDays)",
+
+  // State variables
+  "function owner() view returns (address)",
+  "function goal() view returns (uint256)",
+  "function deadline() view returns (uint256)",
+  "function totalRaised() view returns (uint256)",
+  "function withdrawn() view returns (bool)",
+  "function contributions(address) view returns (uint256)",
+
+  // Functions
+  "function contribute() payable",
+  "function withdraw()",
+  "function refund()",
+  "function getRemainingTime() view returns (uint256)",
+  "function isGoalReached() view returns (bool)",
+  "function getBalance() view returns (uint256)",
+
+  // Events
+  "event Contributed(address indexed contributor, uint256 amount)",
+  "event Withdrawn(address indexed recipient, uint256 amount)",
+  "event Refunded(address indexed contributor, uint256 amount)",
 ];
 
 // ── State ──────────────────────────────────────────────────────────────────
