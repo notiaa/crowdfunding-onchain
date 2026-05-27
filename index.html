@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crowdfunding On-Chain</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <h1 class="header__title">Crowdfunding On-Chain</h1>
+      <div class="header__wallet">
+        <span id="walletAddress" class="wallet-address hidden"></span>
+        <button id="btnConnect" class="btn btn--primary">Connecter MetaMask</button>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <!-- SECTION : INFOS CAMPAGNE -->
+      <section class="card" id="sectionInfo">
+        <h2 class="card__title">Campagne</h2>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-item__label">Objectif</span>
+            <span class="info-item__value" id="goal">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Total collecté</span>
+            <span class="info-item__value" id="totalRaised">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Temps restant</span>
+            <span class="info-item__value" id="timeRemaining">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__label">Statut</span>
+            <span class="info-item__value" id="status">—</span>
+          </div>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-bar__fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <p class="progress-label" id="progressLabel">0%</p>
+      </section>
+
+      <!-- SECTION : CONTRIBUER -->
+      <section class="card" id="sectionContribute">
+        <h2 class="card__title">Contribuer</h2>
+
+        <p class="my-contribution">
+          Ma contribution : <strong id="myContribution">—</strong>
+        </p>
+
+        <div class="contribute-form">
+          <input
+            type="number"
+            id="inputAmount"
+            class="input"
+            placeholder="Montant en ETH (ex: 0.01)"
+            min="0"
+            step="0.001"
+          />
+          <button id="btnContribute" class="btn btn--primary" disabled>Contribuer</button>
+        </div>
+      </section>
+
+      <!-- SECTION : ACTIONS OWNER / CONTRIBUTEUR -->
+      <section class="card" id="sectionActions">
+        <h2 class="card__title">Actions</h2>
+        <div class="actions">
+          <button id="btnWithdraw" class="btn btn--success hidden">
+            Retirer les fonds (Owner)
+          </button>
+          <button id="btnRefund" class="btn btn--warning hidden">
+            Se faire rembourser
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- NOTIFICATION -->
+    <div id="notification" class="notification hidden">
+      <span id="notificationText"></span>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
