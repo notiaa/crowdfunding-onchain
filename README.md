@@ -144,3 +144,37 @@ est appliqué sur `withdraw()` et `refund()` pour bloquer tout appel récursif.
 | Double refund | Protégé | Contributions mises à 0 avant transfert |
 | Contribution nulle | Protégé | `require(msg.value > 0)` |
 | Denial of Service | Protégé | Aucune boucle sur adresses externes |
+
+---
+
+# 🧪 Tests
+
+Les tests unitaires couvrent l'ensemble des fonctions du contrat.
+
+```bash
+npx hardhat test
+```
+
+## Résultats
+
+```
+Crowdfunding
+  Deployment        6 passing
+  contribute()      6 passing
+  refund()          6 passing
+  withdraw()        6 passing
+  View functions    4 passing
+
+28 passing
+```
+
+## Couverture des tests
+
+| Fonction | Cas testés |
+|---|---|
+| `constructor` | owner correct, goal correct, deadline future, totalRaised=0, revert si goal=0, revert si duration=0 |
+| `contribute()` | contribution valide, mise à jour totalRaised, mise à jour contributions, accumulation, revert si 0 ETH, revert après deadline |
+| `withdraw()` | retrait owner si goal atteint, withdrawn=true après retrait, revert double retrait, revert avant deadline, revert si non-owner, revert si goal non atteint |
+| `refund()` | remboursement si goal non atteint, contributions=0 après remboursement, revert double remboursement, revert si goal atteint, revert si aucune contribution, revert avant deadline |
+| `getRemainingTime()` | > 0 avant deadline, = 0 après deadline |
+| `isGoalReached()` | false initialement, true quand goal atteint |
