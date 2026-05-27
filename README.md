@@ -86,3 +86,61 @@ Le projet applique plusieurs bonnes pratiques de sécurité :
 ```txt
 TODO
 ```
+# Installation 
+```console
+git clone https://github.com/notiaa/crowdfunding-onchain
+cd crowdfunding-onchain
+npm install
+cp .env.example .env
+# Remplir PRIVATE_KEY, SEPOLIA_RPC_URL, ETHERSCAN_API_KEY
+npx hardhat compile
+npx hardhat test
+npx hardhat run scripts/deploy.js --network sepolia
+```
+
+# Architecture du contrat
+
+```
+Crowdfunding.sol (is ReentrancyGuard)
+│
+├── Variables
+│   ├── owner, goal, deadline (immutable)
+│   ├── totalRaised, withdrawn
+│   └── contributions (mapping address → uint256)
+│
+├── Events: Contributed · Withdrawn · Refunded
+├── Modifiers: onlyOwner · beforeDeadline · afterDeadline · nonReentrant
+│
+├── contribute()   — payable, avant deadline
+├── withdraw()     — owner seulement, après deadline, si goal atteint
+├── refund()       — après deadline, si goal non atteint
+│
+└── Views: getRemainingTime() · isGoalReached() · getBalance()
+```
+## Sécurité
+### Pattern CEI (Checks → Effects → Interactions)
+Toutes les fonctions critiques suivent ce pattern :
+1. **Checks** — vérification des conditions avec `require()`
+2. **Effects** — mise à jour des variables d'état
+3. **Interactions** — transfert ETH en dernier
+
+Dans `refund()`, `contributions[msg.sender] = 0` est mis à zéro **avant** le transfert.
+
+### ReentrancyGuard (OpenZeppelin)
+Le contrat hérite de `ReentrancyGuard`. Le modifier `nonReentrant`
+est appliqué sur `withdraw()` et `refund()` pour bloquer tout appel récursif.
+
+### Contrôle d'accès
+- `onlyOwner` — seul le déployeur peut appeler `withdraw()`
+- `beforeDeadline` — contributions refusées après la deadline
+- `afterDeadline` — retrait et remboursements avant la deadline impossibles
+
+### Checklist des vulnérabilités
+| Vecteur | Statut | Mécanisme |
+|---|---|---|
+| Overflow / underflow | Protégé | Solidity 0.8+ natif |
+| Reentrancy | Protégé | ReentrancyGuard + CEI |
+| Double withdraw | Protégé | `require(!withdrawn)` |
+| Double refund | Protégé | Contributions mises à 0 avant transfert |
+| Contribution nulle | Protégé | `require(msg.value > 0)` |
+| Denial of Service | Protégé | Aucune boucle sur adresses externes |
