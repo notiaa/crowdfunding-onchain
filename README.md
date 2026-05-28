@@ -96,6 +96,7 @@ npx hardhat verify --network sepolia 0x75B6e5550d42f81c586DA07007Ce406F77AdDc3F 
 ```
 
 ## Lien démo : https://notiaa.github.io/crowdfunding-onchain
+## Le repository GitHub : [github.com/notiaa/crowdfunding-onchain](https://github.com/notiaa/crowdfunding-onchain)
 
 
 # Installation 
@@ -190,3 +191,17 @@ Crowdfunding
 | `refund()` | remboursement si goal non atteint, contributions=0 après remboursement, revert double remboursement, revert si goal atteint, revert si aucune contribution, revert avant deadline |
 | `getRemainingTime()` | > 0 avant deadline, = 0 après deadline |
 | `isGoalReached()` | false initialement, true quand goal atteint |
+
+## Screenshots
+
+### Interface de la DApp
+![Interface DApp](screenshots/dapp-main.png)
+
+### Contribution via MetaMask
+![MetaMask](screenshots/metamask-contribute.png)
+
+### Contrat vérifié sur Etherscan
+![Etherscan](screenshots/etherscan-code-verified.png)
+
+### Tests Hardhat (28 passent)
+![Tests](screenshots/hardhat-tests.jpg)
