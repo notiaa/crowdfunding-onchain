@@ -95,6 +95,9 @@ Le projet applique plusieurs bonnes pratiques de sécurité :
 npx hardhat verify --network sepolia 0x75B6e5550d42f81c586DA07007Ce406F77AdDc3F "50000000000000000" "7"
 ```
 
+## Lien démo : https://notiaa.github.io/crowdfunding-onchain
+
+
 # Installation 
 ```console
 git clone https://github.com/notiaa/crowdfunding-onchain
