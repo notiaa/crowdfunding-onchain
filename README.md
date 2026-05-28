@@ -33,6 +33,7 @@ Le projet met l’accent sur :
 | Randriamanalina Anja | DevOps & Documentation | GitHub repository, README, vidéo démo, coordination |
 
 ---
+# Lien de la vidéo : https://www.loom.com/share/543d592afcea406594f39bc50c87ddd3
 
 # 🛠️ Technologies utilisées
 
